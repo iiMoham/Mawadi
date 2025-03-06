@@ -5,9 +5,10 @@ import { X } from 'lucide-react';
 interface AdminLoginModalProps {
   isOpen: boolean;
   onClose: () => void;
+  darkMode?: boolean;
 }
 
-export function AdminLoginModal({ isOpen, onClose }: AdminLoginModalProps) {
+export function AdminLoginModal({ isOpen, onClose, darkMode = false }: AdminLoginModalProps) {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const navigate = useNavigate();
@@ -30,12 +31,12 @@ export function AdminLoginModal({ isOpen, onClose }: AdminLoginModalProps) {
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg shadow-xl w-full max-w-md mx-4 overflow-hidden">
-        <div className="flex justify-between items-center p-4 border-b">
-          <h2 className="text-xl font-semibold text-gray-800">Admin Login</h2>
+      <div className={`${darkMode ? 'bg-gray-800' : 'bg-white'} rounded-lg shadow-xl w-full max-w-md mx-4 overflow-hidden`}>
+        <div className={`flex justify-between items-center p-4 border-b ${darkMode ? 'border-gray-700' : 'border-gray-200'}`}>
+          <h2 className={`text-xl font-semibold ${darkMode ? 'text-gray-100' : 'text-gray-800'}`}>Admin Login</h2>
           <button 
             onClick={onClose}
-            className="text-gray-500 hover:text-gray-700 transition-colors"
+            className={`${darkMode ? 'text-gray-400 hover:text-gray-200' : 'text-gray-500 hover:text-gray-700'} transition-colors`}
           >
             <X className="h-5 w-5" />
           </button>
@@ -43,13 +44,13 @@ export function AdminLoginModal({ isOpen, onClose }: AdminLoginModalProps) {
         
         <form onSubmit={handleSubmit} className="p-6">
           {error && (
-            <div className="mb-4 p-3 bg-red-50 text-red-600 rounded-md text-sm">
+            <div className={`mb-4 p-3 ${darkMode ? 'bg-red-900/30 text-red-300' : 'bg-red-50 text-red-600'} rounded-md text-sm`}>
               {error}
             </div>
           )}
           
           <div className="mb-4">
-            <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
+            <label htmlFor="password" className={`block text-sm font-medium ${darkMode ? 'text-gray-300' : 'text-gray-700'} mb-1`}>
               Password
             </label>
             <input
@@ -57,7 +58,11 @@ export function AdminLoginModal({ isOpen, onClose }: AdminLoginModalProps) {
               id="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
+              className={`w-full px-3 py-2 border ${
+                darkMode 
+                  ? 'border-gray-600 bg-gray-700 text-gray-100 focus:ring-green-600 focus:border-green-600' 
+                  : 'border-gray-300 bg-white text-gray-900 focus:ring-green-500 focus:border-green-500'
+              } rounded-md shadow-sm focus:outline-none focus:ring-2`}
               placeholder="Enter admin password"
               required
             />
@@ -67,7 +72,11 @@ export function AdminLoginModal({ isOpen, onClose }: AdminLoginModalProps) {
             <button
               type="button"
               onClick={onClose}
-              className="mr-3 px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-md transition-colors"
+              className={`mr-3 px-4 py-2 text-sm font-medium ${
+                darkMode 
+                  ? 'text-gray-200 bg-gray-700 hover:bg-gray-600' 
+                  : 'text-gray-700 bg-gray-100 hover:bg-gray-200'
+              } rounded-md transition-colors`}
             >
               Cancel
             </button>

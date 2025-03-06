@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import backgroundImage from '../assets/backgroundMawadi.svg';
 
 interface LayoutProps {
@@ -6,7 +6,7 @@ interface LayoutProps {
 }
 
 export function Layout({ children }: LayoutProps) {
-  // Add a style tag to override specific backgrounds
+  
   React.useEffect(() => {
     const style = document.createElement('style');
     style.innerHTML = `
@@ -16,6 +16,23 @@ export function Layout({ children }: LayoutProps) {
       }
       
       .bg-gradient-to-br {
+        background-image: none !important;
+      }
+      
+      .dark {
+        color-scheme: dark;
+      }
+      
+      .dark .bg-white {
+        background-color: #1f2937 !important;
+      }
+      
+      .dark .text-gray-800, .dark .text-green-800 {
+        color: #e5e7eb !important;
+      }
+      
+      .dark .bg-green-700, .dark .from-green-800, .dark .to-green-700 {
+        background-color: #111827 !important;
         background-image: none !important;
       }
     `;
@@ -29,7 +46,7 @@ export function Layout({ children }: LayoutProps) {
   return (
     <>
       <div 
-        className="fixed inset-0 w-full h-full"
+        className="fixed inset-0 w-full h-full dark:opacity-10"
         style={{ 
           backgroundImage: `url(${backgroundImage})`,
           backgroundAttachment: 'fixed',

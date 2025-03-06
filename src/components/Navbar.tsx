@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Search, GraduationCap, ShieldCheck, Menu, X, Users } from 'lucide-react';
+import { Search, GraduationCap, ShieldCheck, Menu, X, Users, Moon, Sun } from 'lucide-react';
 import { SubjectCategory } from '../types';
 import MawadiLogo from '../assets/logo/MawadiWhiteLogo.svg';
 
@@ -9,13 +9,17 @@ interface NavbarProps {
   onAdminClick: () => void;
   onCategorySelect: (category: SubjectCategory | null) => void;
   selectedCategory: SubjectCategory | null;
+  darkMode?: boolean;
+  onToggleDarkMode?: () => void;
 }
 
 export function Navbar({ 
   onSearch, 
   onAdminClick,
   onCategorySelect,
-  selectedCategory
+  selectedCategory,
+  darkMode = false,
+  onToggleDarkMode = () => {}
 }: NavbarProps) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -27,17 +31,17 @@ export function Navbar({
   };
 
   return (
-    <nav className="bg-gradient-to-r from-green-800 to-green-700 shadow-md">
-      {/* Top row with logo, search, language toggle, and admin button */}
+    <nav className={`bg-gradient-to-r from-green-800 to-green-700 shadow-md ${darkMode ? 'dark' : ''}`}>
+      
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
-          {/* Logo and brand name */}
+          
           <div className="flex-shrink-0 flex items-center">
             <Link to="/" className="flex items-center">
               <img src={MawadiLogo} alt="Mawadi Logo" className="h-20 w-auto mr-2" />
             </Link>
             
-            {/* Navigation links */}
+            
             <div className="hidden md:flex ml-6 space-x-4">
               <Link
                 to="/"
@@ -55,7 +59,7 @@ export function Navbar({
             </div>
           </div>
 
-          {/* Search bar - hidden on mobile */}
+          
           <div className="hidden md:block flex-grow max-w-md mx-4">
             <div className="relative">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -71,8 +75,20 @@ export function Navbar({
             </div>
           </div>
 
-          {/* Right side buttons */}
+          
           <div className="flex items-center space-x-3">
+            <button 
+              onClick={onToggleDarkMode}
+              className="flex items-center justify-center px-3 py-1.5 rounded-full bg-white/90 text-green-700 hover:bg-white transition-colors duration-200"
+              aria-label={darkMode ? "Switch to Light Mode" : "Switch to Dark Mode"}
+            >
+              {darkMode ? (
+                <Sun className="h-4 w-4" />
+              ) : (
+                <Moon className="h-4 w-4" />
+              )}
+            </button>
+            
             <button 
               onClick={onAdminClick}
               className="flex items-center justify-center px-3 py-1.5 rounded-full bg-white/90 text-green-700 hover:bg-white transition-colors duration-200"
@@ -82,7 +98,7 @@ export function Navbar({
               <span className="font-medium text-sm">Admin</span>
             </button>
             
-            {/* Mobile menu button */}
+            
             <div className="md:hidden">
               <button
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
@@ -99,7 +115,7 @@ export function Navbar({
         </div>
       </div>
 
-      {/* Bottom row with category tabs */}
+      
       <div className="bg-green-700/80 shadow-inner">
         <div className="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8">
           {/* Desktop category tabs */}
@@ -108,7 +124,7 @@ export function Navbar({
               onClick={() => onCategorySelect('ALL')}
               className={`px-4 py-3 text-sm font-medium rounded-t-md transition-colors duration-200 ${
                 selectedCategory === 'ALL' || selectedCategory === null
-                  ? 'bg-white text-green-800 shadow-sm' 
+                  ? 'bg-green-800 text-white shadow-sm' 
                   : 'text-white hover:bg-green-600/50'
               }`}
             >
@@ -122,7 +138,7 @@ export function Navbar({
               onClick={() => onCategorySelect('CS')}
               className={`px-4 py-3 text-sm font-medium rounded-t-md transition-colors duration-200 ${
                 selectedCategory === 'CS' 
-                  ? 'bg-white text-green-800 shadow-sm' 
+                  ? 'bg-green-800 text-white shadow-sm' 
                   : 'text-white hover:bg-green-600/50'
               }`}
             >
@@ -136,7 +152,7 @@ export function Navbar({
               onClick={() => onCategorySelect('IT')}
               className={`px-4 py-3 text-sm font-medium rounded-t-md transition-colors duration-200 ${
                 selectedCategory === 'IT' 
-                  ? 'bg-white text-green-800 shadow-sm' 
+                  ? 'bg-green-800 text-white shadow-sm' 
                   : 'text-white hover:bg-green-600/50'
               }`}
             >
@@ -150,7 +166,7 @@ export function Navbar({
               onClick={() => onCategorySelect('IS')}
               className={`px-4 py-3 text-sm font-medium rounded-t-md transition-colors duration-200 ${
                 selectedCategory === 'IS' 
-                  ? 'bg-white text-green-800 shadow-sm' 
+                  ? 'bg-green-800 text-white shadow-sm' 
                   : 'text-white hover:bg-green-600/50'
               }`}
             >
@@ -161,13 +177,13 @@ export function Navbar({
             </button>
           </div>
           
-          {/* Mobile category tabs - always visible */}
+          
           <div className="md:hidden flex justify-between overflow-x-auto py-2 space-x-1">
             <button
               onClick={() => onCategorySelect('ALL')}
               className={`flex-1 px-2 py-2 text-xs font-medium rounded-md transition-colors duration-200 ${
                 selectedCategory === 'ALL' || selectedCategory === null
-                  ? 'bg-white text-green-800 shadow-sm' 
+                  ? 'bg-green-800 text-white shadow-sm' 
                   : 'text-white bg-green-600/50'
               }`}
             >
@@ -181,7 +197,7 @@ export function Navbar({
               onClick={() => onCategorySelect('CS')}
               className={`flex-1 px-2 py-2 text-xs font-medium rounded-md transition-colors duration-200 ${
                 selectedCategory === 'CS' 
-                  ? 'bg-white text-green-800 shadow-sm' 
+                  ? 'bg-green-800 text-white shadow-sm' 
                   : 'text-white bg-green-600/50'
               }`}
             >
@@ -195,7 +211,7 @@ export function Navbar({
               onClick={() => onCategorySelect('IT')}
               className={`flex-1 px-2 py-2 text-xs font-medium rounded-md transition-colors duration-200 ${
                 selectedCategory === 'IT' 
-                  ? 'bg-white text-green-800 shadow-sm' 
+                  ? 'bg-green-800 text-white shadow-sm' 
                   : 'text-white bg-green-600/50'
               }`}
             >
@@ -209,7 +225,7 @@ export function Navbar({
               onClick={() => onCategorySelect('IS')}
               className={`flex-1 px-2 py-2 text-xs font-medium rounded-md transition-colors duration-200 ${
                 selectedCategory === 'IS' 
-                  ? 'bg-white text-green-800 shadow-sm' 
+                  ? 'bg-green-800 text-white shadow-sm' 
                   : 'text-white bg-green-600/50'
               }`}
             >
@@ -220,7 +236,7 @@ export function Navbar({
             </button>
           </div>
           
-          {/* Mobile search - always visible */}
+          
           <div className="md:hidden py-2 px-1">
             <div className="relative">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -238,10 +254,10 @@ export function Navbar({
         </div>
       </div>
 
-      {/* Mobile menu, show/hide based on menu state */}
+      
       {isMobileMenuOpen && (
         <div className="md:hidden bg-green-700 pb-3 px-4">
-          {/* Mobile navigation links */}
+          
           <div className="pt-2 pb-3 border-t border-green-600">
             <Link
               to="/"

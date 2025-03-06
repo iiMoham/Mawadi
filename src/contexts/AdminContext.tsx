@@ -8,8 +8,7 @@ interface AdminContextType {
 
 const AdminContext = createContext<AdminContextType | undefined>(undefined);
 
-// In a real application, this would be stored securely on the server
-// This is just for demonstration purposes
+
 const ADMIN_PASSWORD = 'admin123';
 
 export function AdminProvider({ children }: { children: React.ReactNode }) {

@@ -1,45 +1,22 @@
 import { Client, Databases, ID, Query, Account, Teams } from 'appwrite';
 import type { Subject } from '../types';
 
-// Log environment variables (without sensitive values)
 console.log('📋 Appwrite Configuration:');
 console.log('VITE_APPWRITE_ENDPOINT:', import.meta.env.VITE_APPWRITE_ENDPOINT);
 console.log('VITE_APPWRITE_PROJECT_ID:', import.meta.env.VITE_APPWRITE_PROJECT_ID ? '✓ Set' : '❌ Not set');
 console.log('VITE_APPWRITE_DATABASE_ID:', import.meta.env.VITE_APPWRITE_DATABASE_ID ? '✓ Set' : '❌ Not set');
 console.log('VITE_APPWRITE_SUBJECTS_COLLECTION_ID:', import.meta.env.VITE_APPWRITE_SUBJECTS_COLLECTION_ID ? '✓ Set' : '❌ Not set');
 
-/**
- * ⚠️ APPWRITE PERMISSIONS CONFIGURATION GUIDE ⚠️
- * 
- * If subjects aren't being saved to the database, you need to fix Appwrite permissions:
- * 
- * 1. Go to your Appwrite Console (https://cloud.appwrite.io)
- * 2. Navigate to your project
- * 3. Go to Databases > [Your Database] > [Subjects Collection]
- * 4. Click on "Settings" tab
- * 5. Under "Permissions", add these permissions:
- *    - create: ["role:all"]
- *    - read: ["role:all"]
- *    - update: ["role:all"]
- *    - delete: ["role:all"]
- * 6. Click "Update"
- * 
- * This allows any user (including guests) to read/write data.
- * For a production app, you would want more restrictive permissions.
- */
 
-// Initialize the Appwrite client
 const client = new Client();
 
 client
   .setEndpoint(import.meta.env.VITE_APPWRITE_ENDPOINT)
   .setProject(import.meta.env.VITE_APPWRITE_PROJECT_ID);
 
-// Initialize Appwrite services
 export const databases = new Databases(client);
 export const account = new Account(client);
 
-// Database and collection IDs
 export const DATABASES = {
   MAIN: import.meta.env.VITE_APPWRITE_DATABASE_ID,
 };
@@ -48,7 +25,6 @@ export const COLLECTIONS = {
   SUBJECTS: import.meta.env.VITE_APPWRITE_SUBJECTS_COLLECTION_ID,
 };
 
-// Check if we have all required configuration
 const validateConfiguration = () => {
   const missingVars = [];
   
@@ -65,15 +41,12 @@ const validateConfiguration = () => {
   return true;
 };
 
-// Call validation
 const isConfigValid = validateConfiguration();
 if (!isConfigValid) {
   console.error('⚠️ Appwrite configuration is incomplete. Some features may not work correctly.');
 }
 
-// Subject database functions
 export const subjectService = {
-  // Get all subjects
   async getAllSubjects(): Promise<Subject[]> {
     try {
       console.log('Fetching all subjects from Appwrite...');
@@ -108,7 +81,6 @@ export const subjectService = {
         console.error('Error stack:', error.stack);
       }
       
-      // Return fallback data for development
       const fallbackData = [
         {
           id: '1',
@@ -174,16 +146,14 @@ export const subjectService = {
       console.log('Generated ID:', uniqueId);
       
       // Prepare data object with all required fields
-      // Make sure category is one of CS, IT, or IS (not ALL)
-      const validCategory = subject.category === 'ALL' ? 'CS' : subject.category;
-      
+      // Allow ALL category
       const data = {
         name: subject.name,
         description: subject.description,
         slide_link: subject.slide_link || '',
         test_bank_link: subject.test_bank_link || '',
         telegram_channel: subject.telegram_channel || '',
-        category: validCategory,
+        category: subject.category,
         created_at: new Date().toISOString(),
       };
       
@@ -248,7 +218,6 @@ export const subjectService = {
           alert('Database or collection not found. Please check your Appwrite configuration.');
         }
         
-        // For testing/debugging: Try to create a fallback subject in memory
         const fallbackSubject = {
           id: uniqueId,
           name: subject.name,
@@ -256,13 +225,12 @@ export const subjectService = {
           slide_link: subject.slide_link || '',
           test_bank_link: subject.test_bank_link || '',
           telegram_channel: subject.telegram_channel || '',
-          category: validCategory,
+          category: subject.category,
           created_at: new Date().toISOString(),
         };
         
         console.log('🔄 Created fallback subject in memory:', fallbackSubject);
         
-        // Return the fallback subject to allow the UI to show something
         return fallbackSubject;
       }
     } catch (outerError) {
@@ -271,7 +239,6 @@ export const subjectService = {
     }
   },
 
-  // Update an existing subject
   async updateSubject(id: string, subject: Partial<Omit<Subject, 'id' | 'created_at'>>): Promise<Subject | null> {
     try {
       const doc = await databases.updateDocument(
@@ -299,7 +266,6 @@ export const subjectService = {
     }
   },
 
-  // Delete a subject
   async deleteSubject(id: string): Promise<boolean> {
     try {
       await databases.deleteDocument(
@@ -314,7 +280,6 @@ export const subjectService = {
     }
   },
 
-  // Search subjects
   async searchSubjects(query: string): Promise<Subject[]> {
     try {
       const response = await databases.listDocuments(

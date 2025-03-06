@@ -48,18 +48,20 @@ function AppContent() {
   const [selectedCategory, setSelectedCategory] = useState<SubjectCategory | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [darkMode, setDarkMode] = useState<boolean>(() => {
+    const savedDarkMode = localStorage.getItem('darkMode');
+    return savedDarkMode ? JSON.parse(savedDarkMode) : false;
+  });
   const [language, setLanguage] = useState('en');
   const [showLanding, setShowLanding] = useState(true);
   const location = useLocation();
 
-  // Hide landing page when navigating to other routes
   useEffect(() => {
     if (location.pathname !== '/') {
       setShowLanding(false);
     }
   }, [location.pathname]);
 
-  // Fetch subjects on component mount
   useEffect(() => {
     const fetchSubjects = async () => {
       setIsLoading(true);
@@ -68,7 +70,7 @@ function AppContent() {
         const fetchedSubjects = await subjectService.getAllSubjects();
         console.log('Fetched subjects:', fetchedSubjects);
         setSubjects(fetchedSubjects);
-        setFilteredSubjects(fetchedSubjects); // Initialize filtered subjects with all subjects
+        setFilteredSubjects(fetchedSubjects); 
         setError(null);
       } catch (err) {
         console.error('Detailed error fetching subjects:', err);
@@ -77,7 +79,6 @@ function AppContent() {
           console.error('Error stack:', err.stack);
         }
         setError('Failed to load subjects. Please try again later.');
-        // Load fallback data if database fails
         const fallbackData = [
     {
       id: '1',
@@ -130,19 +131,15 @@ function AppContent() {
     fetchSubjects();
   }, []);
 
-  // Apply filters whenever subjects, search query, or selected category changes
   useEffect(() => {
     applyFilters();
   }, [subjects, searchQuery, selectedCategory]);
 
-  // Function to apply both search and category filters
   const applyFilters = (subjectsToFilter = subjects) => {
     let filtered = [...subjectsToFilter];
     
-    // Apply category filter if a category is selected and not ALL
     if (selectedCategory && selectedCategory !== 'ALL') {
       console.log(`Filtering by category: ${selectedCategory}`);
-      // Show subjects that match the selected category OR have the ALL category
       filtered = filtered.filter(subject => 
         subject.category === selectedCategory || subject.category === 'ALL'
       );
@@ -150,7 +147,6 @@ function AppContent() {
       console.log('Showing all categories (no category filter applied)');
     }
     
-    // Apply search filter if there's a search query
     if (searchQuery) {
       const query = searchQuery.toLowerCase();
       console.log(`Filtering by search query: "${query}"`);
@@ -176,51 +172,43 @@ function AppContent() {
     try {
       console.log('🔍 handleAddSubject called with:', JSON.stringify(newSubject, null, 2));
       
-      // Make sure the category is valid (not ALL for new subjects)
       const validatedSubject = {
-        ...newSubject,
-        category: newSubject.category === 'ALL' ? 'CS' : newSubject.category
+        ...newSubject
       };
       
-      console.log('Validated subject category:', validatedSubject.category);
+      console.log('Subject category:', validatedSubject.category);
       
       const addedSubject = await subjectService.createSubject(validatedSubject);
       
       if (addedSubject) {
         console.log('✅ Subject received from service:', JSON.stringify(addedSubject, null, 2));
         
-        // Check if this is a fallback subject (created in memory) by checking if id is a string without a $ prefix
-        // Appwrite IDs in responses have $id property, but our fallback uses regular id
+
         const isFallbackSubject = typeof addedSubject.id === 'string' && !addedSubject.id.includes('$');
         
         if (isFallbackSubject) {
           console.log('⚠️ Using fallback subject (not saved to Appwrite)');
-          // Show a warning message to the user
           setError('Subject was created but could not be saved to the database. It will disappear on page refresh.');
         } else {
           console.log('✅ Subject successfully saved to Appwrite');
           setError(null);
         }
         
-        // Update the subjects list
         setSubjects(prevSubjects => {
           const updatedSubjects = [...prevSubjects, addedSubject];
           console.log('📋 Updated subjects list:', updatedSubjects.length);
           return updatedSubjects;
         });
         
-        // Force a refresh of all subjects from the database
         try {
           console.log('Refreshing subjects from database...');
           const refreshedSubjects = await subjectService.getAllSubjects();
           console.log('Refreshed subjects after add:', refreshedSubjects);
           setSubjects(refreshedSubjects);
           
-          // Apply filters to the refreshed subjects
           applyFilters(refreshedSubjects);
         } catch (refreshError) {
           console.error('Error refreshing subjects:', refreshError);
-          // If refresh fails, just apply filters to current state
           applyFilters();
         }
         
@@ -253,7 +241,6 @@ function AppContent() {
             subject.id === id ? editedSubject : subject
           )
         );
-        // Filtering will be applied by the useEffect
       }
       return true;
     } catch (error) {
@@ -269,9 +256,7 @@ function AppContent() {
     try {
       await subjectService.deleteSubject(id);
       
-      // Remove from subjects list
       setSubjects(prevSubjects => prevSubjects.filter(subject => subject.id !== id));
-      // Filtering will be applied by the useEffect
       
       return true;
     } catch (error) {
@@ -284,22 +269,17 @@ function AppContent() {
 
   const handleSearch = async (query: string) => {
     setSearchQuery(query);
-    // Filtering will be applied by the useEffect
   };
 
   const handleCategorySelect = (category: SubjectCategory | null) => {
-    // Treat null as 'ALL'
     const newCategory = category === null ? 'ALL' as SubjectCategory : category;
     console.log('Setting selected category to:', newCategory);
     setSelectedCategory(newCategory);
     
-    // Immediately apply filters with the new category
     let filtered = [...subjects];
     
-    // Apply category filter if a category is selected and not ALL
     if (newCategory && newCategory !== 'ALL') {
       console.log(`Filtering by category: ${newCategory}`);
-      // Show subjects that match the selected category OR have the ALL category
       filtered = filtered.filter(subject => 
         subject.category === newCategory || subject.category === 'ALL'
       );
@@ -307,7 +287,6 @@ function AppContent() {
       console.log('Showing all categories (no category filter applied)');
     }
     
-    // Apply search filter if there's a search query
     if (searchQuery) {
       const query = searchQuery.toLowerCase();
       console.log(`Filtering by search query: "${query}"`);
@@ -325,14 +304,34 @@ function AppContent() {
     setShowLanding(false);
   };
 
+  // Toggle dark mode function
+  const toggleDarkMode = () => {
+    setDarkMode(prevMode => {
+      const newMode = !prevMode;
+      localStorage.setItem('darkMode', JSON.stringify(newMode));
+      return newMode;
+    });
+  };
+
+  // Apply dark mode class to the document
+  useEffect(() => {
+    if (darkMode) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  }, [darkMode]);
+
   return (
     <Layout>
-      <div className="min-h-screen flex flex-col">
+      <div className={`min-h-screen flex flex-col ${darkMode ? 'dark bg-gray-900 text-white' : ''}`}>
         <Navbar 
           onSearch={handleSearch} 
           onAdminClick={handleAdminClick}
           onCategorySelect={handleCategorySelect}
           selectedCategory={selectedCategory}
+          darkMode={darkMode}
+          onToggleDarkMode={toggleDarkMode}
         />
         
         <main className="flex-grow">
@@ -341,10 +340,10 @@ function AppContent() {
           path="/"
           element={
                 <div>
-                  <LandingHeader />
+                  <LandingHeader darkMode={darkMode} />
                   <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
                     {error && (
-                      <div className="bg-red-50 border-l-4 border-red-400 p-4 mb-6 rounded shadow-sm">
+                      <div className="bg-red-50 dark:bg-red-900/20 border-l-4 border-red-400 p-4 mb-6 rounded shadow-sm">
                         <div className="flex">
                           <div className="flex-shrink-0">
                             <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
@@ -423,6 +422,7 @@ function AppContent() {
           <AdminLoginModal 
             isOpen={isAdminLoginModalOpen} 
             onClose={() => setIsAdminLoginModalOpen(false)} 
+            darkMode={darkMode}
           />
         )}
     </div>
