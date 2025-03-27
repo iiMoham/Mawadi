@@ -66,16 +66,6 @@ npm run dev
 
 The application will be available at http://localhost:5173
 
-## Admin Access
-
-To access the admin dashboard:
-1. Click on the "Admin" button in the navbar
-2. Enter the password: `admin123`
-3. You will be redirected to the admin dashboard where you can:
-   - View all subjects
-   - Add new subjects
-   - Edit existing subjects
-   - Delete subjects
 
 ## Deployment
 
